@@ -156,101 +156,127 @@ browser.tabs.query({ currentWindow: true, active: true }).then(tabs => {
 	if (elCount == 0) {
 			allElements.innerHTML = 'No audio/video found in the current tab. Note that some websites do not work because of cross-domain security restrictions.'
 			indivElements.remove()
-	} else {
-			const node = document.createElement('div')
-			node.appendChild(document.importNode(elementsTpl.content, true))
-			node.querySelector('.element-label').textContent = `All media on the page`
-			const gain = node.querySelector('.element-gain')
-			const gainNumberInput = node.querySelector('.element-gain-num')
-			gain.value = 1
-			gainNumberInput.value = '' + gain.value
-			function applyGain (value) {
-				for (const [fid, els] of frameMap) {
-					for (const [elid, el] of els) {
-						applySettings(fid, elid, { gain: value })
-						const egain = document.querySelector(`[data-fid="${fid}"][data-elid="${elid}"] .element-gain`)
-						egain.value = value
-						egain.parentElement.querySelector('.element-gain-num').value = '' + value
+		} else {
+			// Simple solution: use the first element's settings for 'All media' controls
+			let firstSettings = { gain: 1, pan: 0, mono: false, flip: false };
+			for (const [, els] of frameMap) {
+				for (const [, el] of els) {
+					if (el.settings) {
+						firstSettings = {
+							gain: el.settings.gain ?? 1,
+							pan: el.settings.pan ?? 0,
+							mono: el.settings.mono ?? false,
+							flip: el.settings.flip ?? false
+						};
+						break;
 					}
 				}
-				gain.value = value
-				gainNumberInput.value = '' + value
+				break;
 			}
-			gain.addEventListener('input', _ => applyGain(gain.value))
+			const node = document.createElement('div');
+			node.appendChild(document.importNode(elementsTpl.content, true));
+			node.querySelector('.element-label').textContent = `All media on the page`;
+			const gain = node.querySelector('.element-gain');
+			const gainNumberInput = node.querySelector('.element-gain-num');
+			gain.value = firstSettings.gain;
+			gainNumberInput.value = '' + firstSettings.gain;
+			function applyGain(value) {
+				for (const [fid, els] of frameMap) {
+					for (const [elid, el] of els) {
+						applySettings(fid, elid, { gain: value });
+						const egain = document.querySelector(`[data-fid="${fid}"][data-elid="${elid}"] .element-gain`);
+						if (egain) {
+							egain.value = value;
+							egain.parentElement.querySelector('.element-gain-num').value = '' + value;
+						}
+					}
+				}
+				gain.value = value;
+				gainNumberInput.value = '' + value;
+			}
+			gain.addEventListener('input', _ => applyGain(gain.value));
 			gainNumberInput.addEventListener('input', function () {
 				if (+this.value > +this.getAttribute('max'))
-					this.value = this.getAttribute('max')
+					this.value = this.getAttribute('max');
 				if (+this.value < +this.getAttribute('min'))
-					this.value = this.getAttribute('min')
-				applyGain(+this.value)
-			})
-			const pan = node.querySelector('.element-pan')
-			const panNumberInput = node.querySelector('.element-pan-num')
-			pan.value = 0
-			panNumberInput.value = '' + pan.value
-			function applyPan (value) {
+					this.value = this.getAttribute('min');
+				applyGain(+this.value);
+			});
+			const pan = node.querySelector('.element-pan');
+			const panNumberInput = node.querySelector('.element-pan-num');
+			pan.value = firstSettings.pan;
+			panNumberInput.value = '' + firstSettings.pan;
+			function applyPan(value) {
 				for (const [fid, els] of frameMap) {
 					for (const [elid, el] of els) {
-						applySettings(fid, elid, { pan: value })
-						const epan = document.querySelector(`[data-fid="${fid}"][data-elid="${elid}"] .element-pan`)
-						epan.value = value
-						epan.parentElement.querySelector('.element-pan-num').value = '' + value
+						applySettings(fid, elid, { pan: value });
+						const epan = document.querySelector(`[data-fid="${fid}"][data-elid="${elid}"] .element-pan`);
+						if (epan) {
+							epan.value = value;
+							epan.parentElement.querySelector('.element-pan-num').value = '' + value;
+						}
 					}
 				}
-				pan.value = value
-				panNumberInput.value = '' + value
+				pan.value = value;
+				panNumberInput.value = '' + value;
 			}
-			pan.addEventListener('input', _ => applyPan(pan.value))
+			pan.addEventListener('input', _ => applyPan(pan.value));
 			panNumberInput.addEventListener('input', function () {
 				if (+this.value > +this.getAttribute('max'))
-					this.value = this.getAttribute('max')
+					this.value = this.getAttribute('max');
 				if (+this.value < +this.getAttribute('min'))
-					this.value = this.getAttribute('min')
-				applyPan(+this.value)
-			})
-			const mono = node.querySelector('.element-mono')
-			mono.checked = false
+					this.value = this.getAttribute('min');
+				applyPan(+this.value);
+			});
+			const mono = node.querySelector('.element-mono');
+			mono.checked = firstSettings.mono;
 			mono.addEventListener('change', _ => {
 				for (const [fid, els] of frameMap) {
 					for (const [elid, el] of els) {
-						applySettings(fid, elid, { mono: mono.checked })
-						const emono = document.querySelector(`[data-fid="${fid}"][data-elid="${elid}"] .element-mono`)
-						emono.checked = mono.checked
+						applySettings(fid, elid, { mono: mono.checked });
+						const emono = document.querySelector(`[data-fid="${fid}"][data-elid="${elid}"] .element-mono`);
+						if (emono) emono.checked = mono.checked;
 					}
 				}
-			})
-			const flip = node.querySelector('.element-flip')
-			flip.checked = false
+			});
+			const flip = node.querySelector('.element-flip');
+			flip.checked = firstSettings.flip;
 			flip.addEventListener('change', _ => {
 				for (const [fid, els] of frameMap) {
 					for (const [elid, el] of els) {
-						applySettings(fid, elid, { flip: flip.checked })
-						const eflip = document.querySelector(`[data-fid="${fid}"][data-elid="${elid}"] .element-flip`)
-						eflip.checked = flip.checked
+						applySettings(fid, elid, { flip: flip.checked });
+						const eflip = document.querySelector(`[data-fid="${fid}"][data-elid="${elid}"] .element-flip`);
+						if (eflip) eflip.checked = flip.checked;
 					}
 				}
-			})
+			});
 			node.querySelector('.element-reset').onclick = function () {
-				gain.value = 1
-				gain.parentElement.querySelector('.element-gain-num').value = '' + gain.value
-				pan.value = 0
-				pan.parentElement.querySelector('.element-pan-num').value = '' + pan.value
-				mono.checked = false
-				flip.checked = false
+				gain.value = 1;
+				gain.parentElement.querySelector('.element-gain-num').value = '1';
+				pan.value = 0;
+				pan.parentElement.querySelector('.element-pan-num').value = '0';
+				mono.checked = false;
+				flip.checked = false;
 				for (const [fid, els] of frameMap) {
 					for (const [elid, el] of els) {
-						const egain = document.querySelector(`[data-fid="${fid}"][data-elid="${elid}"] .element-gain`)
-						egain.value = 1
-						egain.parentElement.querySelector('.element-gain-num').value = '' + egain.value
-						const epan = document.querySelector(`[data-fid="${fid}"][data-elid="${elid}"] .element-pan`)
-						epan.value = 0
-						epan.parentElement.querySelector('.element-pan-num').value = '' + epan.value
-						document.querySelector(`[data-fid="${fid}"][data-elid="${elid}"] .element-mono`).checked = false
-						document.querySelector(`[data-fid="${fid}"][data-elid="${elid}"] .element-flip`).checked = false
-						applySettings(fid, elid, { gain: 1, pan: 0, mono: false, flip: false })
+						const egain = document.querySelector(`[data-fid="${fid}"][data-elid="${elid}"] .element-gain`);
+						if (egain) {
+							egain.value = 1;
+							egain.parentElement.querySelector('.element-gain-num').value = '1';
+						}
+						const epan = document.querySelector(`[data-fid="${fid}"][data-elid="${elid}"] .element-pan`);
+						if (epan) {
+							epan.value = 0;
+							epan.parentElement.querySelector('.element-pan-num').value = '0';
+						}
+						const emono = document.querySelector(`[data-fid="${fid}"][data-elid="${elid}"] .element-mono`);
+						if (emono) emono.checked = false;
+						const eflip = document.querySelector(`[data-fid="${fid}"][data-elid="${elid}"] .element-flip`);
+						if (eflip) eflip.checked = false;
+						applySettings(fid, elid, { gain: 1, pan: 0, mono: false, flip: false });
 					}
 				}
-			}
-			allElements.appendChild(node)
-	}
+			};
+			allElements.appendChild(node);
+		}
 })
