@@ -97,12 +97,12 @@ browser.tabs.query({ currentWindow: true, active: true }).then(tabs => {
 				node.querySelector('.element-label').classList.add('element-not-playing')
 			const gain = node.querySelector('.element-gain')
 			const gainNumberInput = node.querySelector('.element-gain-num')
-			gain.value = settings.gain || 1
-			gain.parentElement.querySelector('.element-gain-num').value = '' + gain.value
+			gain.value = (settings.gain || 1).toFixed(2)
+			gain.parentElement.querySelector('.element-gain-num').value = gain.value
 			gain.addEventListener('input', function () {
 				// We used a function expression thus gain === this
 				applySettings(fid, elid, { gain: this.value })
-				this.parentElement.querySelector('.element-gain-num').value = '' + this.value
+				this.parentElement.querySelector('.element-gain-num').value = (+this.value).toFixed(2)
 			})
 			gainNumberInput.addEventListener('input', function () {
 				if (+this.value > +this.getAttribute('max'))
@@ -111,15 +111,15 @@ browser.tabs.query({ currentWindow: true, active: true }).then(tabs => {
 					this.value = this.getAttribute('min')
 				
 				applySettings(fid, elid, { gain: this.value })
-				this.parentElement.querySelector('.element-gain').value = '' + this.value
+				this.parentElement.querySelector('.element-gain').value = (+this.value).toFixed(2)
 			})
 			const pan = node.querySelector('.element-pan')
 			const panNumberInput = node.querySelector('.element-pan-num')
-			pan.value = settings.pan || 0
-			pan.parentElement.querySelector('.element-pan-num').value = '' + pan.value
+			pan.value = (settings.pan || 0).toFixed(2)
+			pan.parentElement.querySelector('.element-pan-num').value = pan.value
 			pan.addEventListener('input', function () {
 				applySettings(fid, elid, { pan: this.value })
-				this.parentElement.querySelector('.element-pan-num').value = '' + this.value
+				this.parentElement.querySelector('.element-pan-num').value = (+this.value).toFixed(2)
 			})
 			panNumberInput.addEventListener('input', function () {
 				if (+this.value > +this.getAttribute('max'))
@@ -128,7 +128,7 @@ browser.tabs.query({ currentWindow: true, active: true }).then(tabs => {
 					this.value = this.getAttribute('min')
 				
 				applySettings(fid, elid, { pan: this.value })
-				this.parentElement.querySelector('.element-pan').value = '' + this.value
+				this.parentElement.querySelector('.element-pan').value = (+this.value).toFixed(2)
 			})
 			const mono = node.querySelector('.element-mono')
 			mono.checked = settings.mono || false
@@ -178,8 +178,8 @@ browser.tabs.query({ currentWindow: true, active: true }).then(tabs => {
 			node.querySelector('.element-label').textContent = `All media on the page`;
 			const gain = node.querySelector('.element-gain');
 			const gainNumberInput = node.querySelector('.element-gain-num');
-			gain.value = firstSettings.gain;
-			gainNumberInput.value = '' + firstSettings.gain;
+			gain.value = (+firstSettings.gain).toFixed(2);
+			gainNumberInput.value = '' + gain.value;
 			function applyGain(value) {
 				for (const [fid, els] of frameMap) {
 					for (const [elid, el] of els) {
@@ -191,8 +191,8 @@ browser.tabs.query({ currentWindow: true, active: true }).then(tabs => {
 						}
 					}
 				}
-				gain.value = value;
-				gainNumberInput.value = '' + value;
+				gain.value = (+value).toFixed(2);
+				gainNumberInput.value = (+value).toFixed(2);
 			}
 			gain.addEventListener('input', _ => applyGain(gain.value));
 			gainNumberInput.addEventListener('input', function () {
@@ -205,7 +205,7 @@ browser.tabs.query({ currentWindow: true, active: true }).then(tabs => {
 			const pan = node.querySelector('.element-pan');
 			const panNumberInput = node.querySelector('.element-pan-num');
 			pan.value = firstSettings.pan;
-			panNumberInput.value = '' + firstSettings.pan;
+		panNumberInput.value = (+firstSettings.pan).toFixed(2);
 			function applyPan(value) {
 				for (const [fid, els] of frameMap) {
 					for (const [elid, el] of els) {
@@ -217,8 +217,8 @@ browser.tabs.query({ currentWindow: true, active: true }).then(tabs => {
 						}
 					}
 				}
-				pan.value = value;
-				panNumberInput.value = '' + value;
+				pan.value = (+value).toFixed(2);
+				panNumberInput.value = (+value).toFixed(2);
 			}
 			pan.addEventListener('input', _ => applyPan(pan.value));
 			panNumberInput.addEventListener('input', function () {
